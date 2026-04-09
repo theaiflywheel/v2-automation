@@ -1,0 +1,226 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyMNNpVl5wbXLugNhx9CnIMk",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/theaiflywheel/v2-automation/blob/v2-features/AI%20NEWS\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import requests\n",
+        "from bs4 import BeautifulSoup\n",
+        "\n",
+        "# 1. Pick a target\n",
+        "url = \"https://www.theverge.com/\"\n",
+        "# We add a 'User-Agent' so the website thinks we are a real browser\n",
+        "headers = {'User-Agent': 'Mozilla/5.0'}\n",
+        "\n",
+        "response = requests.get(url, headers=headers)\n",
+        "soup = BeautifulSoup(response.text, 'html.parser')\n",
+        "\n",
+        "# 2. Try to find the headline safely\n",
+        "# We look for 'h2' OR 'a' tags (common for headlines)\n",
+        "headline_element = soup.find('h2') or soup.find('a')\n",
+        "\n",
+        "if headline_element:\n",
+        "    headline = headline_element.get_text().strip()\n",
+        "    print(f\"Latest Tech News: {headline}\")\n",
+        "else:\n",
+        "    print(\"Could not find a headline. The website might be blocking us or changed its layout!\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "VyxkxTcIZ3vv",
+        "outputId": "d8214baa-788e-44b2-eaab-1a1d57e42041"
+      },
+      "execution_count": 2,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Latest Tech News: Top Stories\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# 1. Install the tool\n",
+        "!pip install textblob\n",
+        "\n",
+        "from textblob import TextBlob\n",
+        "\n",
+        "# 2. Analyze the headline we just caught\n",
+        "analysis = TextBlob(headline)\n",
+        "score = analysis.sentiment.polarity # This gives a number between -1 and 1\n",
+        "\n",
+        "# 3. Logic to decide the mood\n",
+        "if score > 0:\n",
+        "    mood = \"🚀 POSITIVE (Bullish)\"\n",
+        "elif score < 0:\n",
+        "    mood = \"📉 NEGATIVE (Bearish)\"\n",
+        "else:\n",
+        "    mood = \"😐 NEUTRAL\"\n",
+        "\n",
+        "print(f\"--- AI ANALYSIS ---\")\n",
+        "print(f\"Headline: {headline}\")\n",
+        "print(f\"Market Mood: {mood}\")\n",
+        "print(f\"Confidence Score: {score}\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "X51ko01naICl",
+        "outputId": "a6e4dfa1-c694-41e0-bf36-2bcaff15ecb4"
+      },
+      "execution_count": 3,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Requirement already satisfied: textblob in /usr/local/lib/python3.12/dist-packages (0.19.0)\n",
+            "Requirement already satisfied: nltk>=3.9 in /usr/local/lib/python3.12/dist-packages (from textblob) (3.9.1)\n",
+            "Requirement already satisfied: click in /usr/local/lib/python3.12/dist-packages (from nltk>=3.9->textblob) (8.3.1)\n",
+            "Requirement already satisfied: joblib in /usr/local/lib/python3.12/dist-packages (from nltk>=3.9->textblob) (1.5.3)\n",
+            "Requirement already satisfied: regex>=2021.8.3 in /usr/local/lib/python3.12/dist-packages (from nltk>=3.9->textblob) (2025.11.3)\n",
+            "Requirement already satisfied: tqdm in /usr/local/lib/python3.12/dist-packages (from nltk>=3.9->textblob) (4.67.3)\n",
+            "--- AI ANALYSIS ---\n",
+            "Headline: Top Stories\n",
+            "Market Mood: 🚀 POSITIVE (Bullish)\n",
+            "Confidence Score: 0.5\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# We'll use a list of headlines (in the future, this will be 100s)\n",
+        "# For now, let's pretend we scraped these 3\n",
+        "headlines = [\n",
+        "    headline, # This is the live one you just scraped\n",
+        "    \"AI startup raises $100 million in Series A funding\",\n",
+        "    \"New regulation threatens to shut down crypto exchanges\"\n",
+        "]\n",
+        "\n",
+        "print(\"📊 GENERATING MARKET REPORT...\\n\")\n",
+        "\n",
+        "for h in headlines:\n",
+        "    analysis = TextBlob(h)\n",
+        "    score = analysis.sentiment.polarity\n",
+        "\n",
+        "    if score > 0:\n",
+        "        mood = \"✅ BULLISH\"\n",
+        "    elif score < 0:\n",
+        "        mood = \"❌ BEARISH\"\n",
+        "    else:\n",
+        "        mood = \"⚖️ NEUTRAL\"\n",
+        "\n",
+        "    print(f\"News: {h}\")\n",
+        "    print(f\"AI Verdict: {mood} (Score: {score})\\n\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "59aDTlb8aa6r",
+        "outputId": "91facceb-8d2d-402e-abca-8316d0f5ce27"
+      },
+      "execution_count": 4,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "📊 GENERATING MARKET REPORT...\n",
+            "\n",
+            "News: Top Stories\n",
+            "AI Verdict: ✅ BULLISH (Score: 0.5)\n",
+            "\n",
+            "News: AI startup raises $100 million in Series A funding\n",
+            "AI Verdict: ⚖️ NEUTRAL (Score: 0.0)\n",
+            "\n",
+            "News: New regulation threatens to shut down crypto exchanges\n",
+            "AI Verdict: ❌ BEARISH (Score: -0.009595959595959602)\n",
+            "\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def send_market_alert(news, sentiment, score):\n",
+        "    # In a real startup, this function would send a message to Discord or Email\n",
+        "    print(\"🔔 --- NEW MARKET SIGNAL DETECTED --- 🔔\")\n",
+        "    print(f\"SIGNAL: {sentiment}\")\n",
+        "    print(f\"STRENGTH: {abs(score) * 100:.1f}%\")\n",
+        "    print(f\"SOURCE: {news}\")\n",
+        "    print(\"------------------------------------------\")\n",
+        "\n",
+        "# Trigger the alert ONLY if the news is significant\n",
+        "# Billionaires don't waste time on \"Neutral\" news.\n",
+        "for h in headlines:\n",
+        "    analysis = TextBlob(h)\n",
+        "    score = analysis.sentiment.polarity\n",
+        "\n",
+        "    if abs(score) > 0.3: # Only alert if the news is strongly positive or negative\n",
+        "        mood = \"🚀 ACTIONABLE POSITIVE\" if score > 0 else \"⚠️ ACTIONABLE NEGATIVE\"\n",
+        "        send_market_alert(h, mood, score)\n",
+        "    else:\n",
+        "        print(f\"Skipping neutral news: {h[:30]}...\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "tiekp2fQef_r",
+        "outputId": "0ec7f4e6-ada3-42f0-abe6-52ecff0de957"
+      },
+      "execution_count": 5,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "🔔 --- NEW MARKET SIGNAL DETECTED --- 🔔\n",
+            "SIGNAL: 🚀 ACTIONABLE POSITIVE\n",
+            "STRENGTH: 50.0%\n",
+            "SOURCE: Top Stories\n",
+            "------------------------------------------\n",
+            "Skipping neutral news: AI startup raises $100 million...\n",
+            "Skipping neutral news: New regulation threatens to sh...\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
